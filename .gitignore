@@ -1,0 +1,27 @@
+# Gradle and Android build outputs
+build/
+app/build/
+.gradle/
+.kotlin/
+
+# Local Android configuration
+local.properties
+
+# Android Studio and IDE metadata
+.idea/
+*.iml
+
+# Local tooling / SDK installed inside the project for CI/dev convenience
+android-sdk/
+
+# Native build outputs
+.externalNativeBuild/
+.cxx/
+
+# Local captures and generated files
+captures/
+*.log
+*.hprof
+
+# Operating system files
+.DS_Store
