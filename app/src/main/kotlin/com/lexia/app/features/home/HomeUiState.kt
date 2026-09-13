@@ -19,7 +19,7 @@ data class MainWord(
     override val borderColor: Color,
 ) : BoardItem
 
-data class Folder(
+data class CategoryItem(
     override val id: String,
     override val label: String,
     override val icon: ImageVector,
@@ -27,8 +27,17 @@ data class Folder(
     override val borderColor: Color,
 ) : BoardItem
 
+data class Folder(
+    override val id: String,
+    override val label: String,
+    override val icon: ImageVector,
+    override val containerColor: Color,
+    override val borderColor: Color,
+    val items: List<CategoryItem> = emptyList(),
+) : BoardItem
+
 data class HomeUiState(
     val mainWords: List<MainWord> = emptyList(),
     val folders: List<Folder> = emptyList(),
-    val sentence: List<MainWord> = emptyList(),
+    val sentence: List<BoardItem> = emptyList(),
 )

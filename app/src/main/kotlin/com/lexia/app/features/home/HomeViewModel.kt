@@ -1,8 +1,12 @@
 package com.lexia.app.features.home
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
+import androidx.compose.material.icons.filled.BakeryDining
+import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.LocalCafe
 import androidx.compose.material.icons.filled.LocalDining
 import androidx.compose.material.icons.filled.LocalDrink
 import androidx.compose.material.icons.filled.LocationOn
@@ -32,7 +36,7 @@ class HomeViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(createInitialState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
-    fun onCardClick(card: MainWord) {
+    fun onCardClick(card: BoardItem) {
         _uiState.update { current ->
             current.copy(sentence = current.sentence + card)
         }
@@ -47,6 +51,20 @@ class HomeViewModel : ViewModel() {
             current.copy(sentence = current.sentence.dropLast(1))
         }
     }
+
+    fun onRemoveCardAt(index: Int) {
+        _uiState.update { current ->
+            if (index in current.sentence.indices) {
+                current.copy(
+                    sentence = current.sentence.toMutableList().apply { removeAt(index) },
+                )
+            } else {
+                current
+            }
+        }
+    }
+
+    fun getFolderById(id: String): Folder? = _uiState.value.folders.find { it.id == id }
 
     private fun createInitialState(): HomeUiState {
         val mainWords =
@@ -98,6 +116,72 @@ class HomeViewModel : ViewModel() {
                     icon = Icons.Default.LocalDining,
                     containerColor = LightBlueFolder.copy(alpha = 0.25f),
                     borderColor = LightBlueFolder,
+                    items =
+                        listOf(
+                            CategoryItem(
+                                id = "agua",
+                                label = "Água",
+                                icon = Icons.Default.LocalDrink,
+                                containerColor = BlueWord.copy(alpha = 0.2f),
+                                borderColor = BlueWord,
+                            ),
+                            CategoryItem(
+                                id = "leite",
+                                label = "Leite",
+                                icon = Icons.Default.LocalCafe,
+                                containerColor = BlueWord.copy(alpha = 0.2f),
+                                borderColor = BlueWord,
+                            ),
+                            CategoryItem(
+                                id = "maca",
+                                label = "Maçã",
+                                icon = Icons.Default.LocalDining,
+                                containerColor = BlueWord.copy(alpha = 0.2f),
+                                borderColor = BlueWord,
+                            ),
+                            CategoryItem(
+                                id = "pao",
+                                label = "Pão",
+                                icon = Icons.Default.BakeryDining,
+                                containerColor = BlueWord.copy(alpha = 0.2f),
+                                borderColor = BlueWord,
+                            ),
+                            CategoryItem(
+                                id = "banana",
+                                label = "Banana",
+                                icon = Icons.Default.LocalDining,
+                                containerColor = BlueWord.copy(alpha = 0.2f),
+                                borderColor = BlueWord,
+                            ),
+                            CategoryItem(
+                                id = "suco",
+                                label = "Suco",
+                                icon = Icons.Default.LocalDrink,
+                                containerColor = BlueWord.copy(alpha = 0.2f),
+                                borderColor = BlueWord,
+                            ),
+                            CategoryItem(
+                                id = "biscoito",
+                                label = "Biscoito",
+                                icon = Icons.Default.BakeryDining,
+                                containerColor = BlueWord.copy(alpha = 0.2f),
+                                borderColor = BlueWord,
+                            ),
+                            CategoryItem(
+                                id = "doce",
+                                label = "Doce",
+                                icon = Icons.Default.Cake,
+                                containerColor = BlueWord.copy(alpha = 0.2f),
+                                borderColor = BlueWord,
+                            ),
+                            CategoryItem(
+                                id = "iogurte",
+                                label = "Iogurte",
+                                icon = Icons.Default.LocalCafe,
+                                containerColor = BlueWord.copy(alpha = 0.2f),
+                                borderColor = BlueWord,
+                            ),
+                        ),
                 ),
                 Folder(
                     id = "brinquedos",
@@ -105,6 +189,16 @@ class HomeViewModel : ViewModel() {
                     icon = Icons.Default.SmartToy,
                     containerColor = PeachFolder.copy(alpha = 0.25f),
                     borderColor = PeachFolder,
+                    items =
+                        listOf(
+                            CategoryItem(
+                                id = "bola",
+                                label = "Bola",
+                                icon = Icons.AutoMirrored.Filled.HelpOutline,
+                                containerColor = PeachFolder.copy(alpha = 0.2f),
+                                borderColor = PeachFolder,
+                            ),
+                        ),
                 ),
                 Folder(
                     id = "sentimentos",
@@ -112,6 +206,7 @@ class HomeViewModel : ViewModel() {
                     icon = Icons.Default.Favorite,
                     containerColor = LightPinkFolder.copy(alpha = 0.25f),
                     borderColor = LightPinkFolder,
+                    items = emptyList(),
                 ),
                 Folder(
                     id = "lugares",
@@ -119,6 +214,7 @@ class HomeViewModel : ViewModel() {
                     icon = Icons.Default.LocationOn,
                     containerColor = LavenderFolder.copy(alpha = 0.25f),
                     borderColor = LavenderFolder,
+                    items = emptyList(),
                 ),
                 Folder(
                     id = "pessoas",
@@ -126,6 +222,7 @@ class HomeViewModel : ViewModel() {
                     icon = Icons.Default.People,
                     containerColor = LightYellowFolder.copy(alpha = 0.25f),
                     borderColor = LightYellowFolder,
+                    items = emptyList(),
                 ),
                 Folder(
                     id = "acoes",
@@ -133,6 +230,7 @@ class HomeViewModel : ViewModel() {
                     icon = Icons.Default.PanTool,
                     containerColor = LightGreenFolder.copy(alpha = 0.25f),
                     borderColor = LightGreenFolder,
+                    items = emptyList(),
                 ),
             )
 

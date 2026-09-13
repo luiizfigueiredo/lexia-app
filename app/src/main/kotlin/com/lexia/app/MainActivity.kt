@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.lexia.app.features.home.HomeScreen
+import com.lexia.app.navigation.LexiaNavHost
 import com.lexia.app.shared.theme.LexiaTheme
 
 class MainActivity : ComponentActivity() {
@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             LexiaTheme {
-                HomeScreen()
+                LexiaNavHost()
             }
         }
     }

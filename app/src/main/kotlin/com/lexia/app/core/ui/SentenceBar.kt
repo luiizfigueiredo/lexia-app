@@ -2,6 +2,7 @@ package com.lexia.app.core.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,9 +18,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
-import androidx.compose.material.icons.filled.Backspace
-import androidx.compose.material.icons.filled.DeleteForever
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,13 +31,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.lexia.app.features.home.MainWord
+import com.lexia.app.features.home.BoardItem
 
 @Composable
 fun SentenceBar(
-    sentence: List<MainWord>,
+    sentence: List<BoardItem>,
     onSpeakClick: () -> Unit,
     onClearClick: () -> Unit,
+    onCardClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -59,6 +58,7 @@ fun SentenceBar(
                 label = word.label,
                 icon = word.icon,
                 borderColor = word.borderColor,
+                onClick = { onCardClick(index) },
             )
         }
 
@@ -99,6 +99,7 @@ private fun SentenceCard(
     label: String,
     icon: ImageVector,
     borderColor: Color,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -119,6 +120,7 @@ private fun SentenceCard(
                         color = borderColor,
                         shape = RoundedCornerShape(18.dp),
                     )
+                    .clickable(onClick = onClick)
                     .padding(vertical = 8.dp),
         ) {
             Icon(

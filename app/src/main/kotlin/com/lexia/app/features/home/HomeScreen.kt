@@ -29,15 +29,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.lexia.app.core.ui.CommunicationCard
 import com.lexia.app.core.ui.FolderCard
 import com.lexia.app.core.ui.HomeButton
 import com.lexia.app.core.ui.SentenceBar
+import com.lexia.app.navigation.navigateToCategory
 import com.lexia.app.shared.theme.MainPanelBlue
 import com.lexia.app.shared.theme.SubtitleText
 
 @Composable
 fun HomeScreen(
+    navController: NavHostController = rememberNavController(),
     viewModel: HomeViewModel = viewModel(),
     modifier: Modifier = Modifier,
 ) {
@@ -46,10 +50,11 @@ fun HomeScreen(
     HomeContent(
         uiState = uiState,
         onCardClick = viewModel::onCardClick,
-        onFolderClick = { /* não implementado no MVP */ },
+        onFolderClick = { folder -> navController.navigateToCategory(folder.id) },
         onSpeakClick = { /* não implementado no MVP */ },
         onClearClick = viewModel::onClearSentence,
-        onHomeClick = { /* não implementado no MVP */ },
+        onSentenceCardClick = viewModel::onRemoveCardAt,
+        onHomeClick = { navController.navigate("home") { popUpTo("home") { inclusive = true } } },
         modifier = modifier,
     )
 }
@@ -62,6 +67,7 @@ private fun HomeContent(
     onFolderClick: (Folder) -> Unit,
     onSpeakClick: () -> Unit,
     onClearClick: () -> Unit,
+    onSentenceCardClick: (Int) -> Unit,
     onHomeClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -101,6 +107,7 @@ private fun HomeContent(
                 sentence = uiState.sentence,
                 onSpeakClick = onSpeakClick,
                 onClearClick = onClearClick,
+                onCardClick = onSentenceCardClick,
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -235,6 +242,7 @@ private fun HomeScreenTabletPreview() {
             onFolderClick = {},
             onSpeakClick = {},
             onClearClick = {},
+            onSentenceCardClick = {},
             onHomeClick = {},
         )
     }
@@ -250,6 +258,7 @@ private fun HomeScreenPhonePreview() {
             onFolderClick = {},
             onSpeakClick = {},
             onClearClick = {},
+            onSentenceCardClick = {},
             onHomeClick = {},
         )
     }
