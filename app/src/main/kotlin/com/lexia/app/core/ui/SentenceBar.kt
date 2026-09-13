@@ -32,6 +32,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lexia.app.features.home.BoardItem
+import com.lexia.app.shared.theme.GreenWord
+import com.lexia.app.shared.theme.RedWord
 
 @Composable
 fun SentenceBar(
@@ -40,7 +42,22 @@ fun SentenceBar(
     onClearClick: () -> Unit,
     onCardClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    isDropTargetActive: Boolean = false,
+    isSentenceFull: Boolean = false,
 ) {
+    val background =
+        when {
+            isDropTargetActive && isSentenceFull -> RedWord.copy(alpha = 0.18f)
+            isDropTargetActive -> GreenWord.copy(alpha = 0.22f)
+            else -> MaterialTheme.colorScheme.surface
+        }
+    val borderColor =
+        when {
+            isDropTargetActive && isSentenceFull -> RedWord
+            isDropTargetActive -> GreenWord
+            else -> Color.Transparent
+        }
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -49,7 +66,12 @@ fun SentenceBar(
                 .fillMaxWidth()
                 .height(110.dp)
                 .clip(RoundedCornerShape(28.dp))
-                .background(MaterialTheme.colorScheme.surface)
+                .background(background)
+                .border(
+                    width = 3.dp,
+                    color = borderColor,
+                    shape = RoundedCornerShape(28.dp),
+                )
                 .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
         sentence.forEachIndexed { index, word ->

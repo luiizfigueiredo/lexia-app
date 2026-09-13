@@ -1,8 +1,12 @@
 package com.lexia.app.core.ui
 
+import android.content.ClipData
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.draganddrop.dragAndDropSource
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,9 +19,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,6 +39,72 @@ fun CommunicationCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     iconSize: Int = 32,
+) {
+    CommunicationCardLayout(
+        label = label,
+        icon = icon,
+        containerColor = containerColor,
+        borderColor = borderColor,
+        iconSize = iconSize,
+        cardModifier = Modifier.clickable(onClick = onClick),
+        modifier = modifier,
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun DraggableCommunicationCard(
+    label: String,
+    icon: ImageVector,
+    containerColor: Color,
+    borderColor: Color,
+    onClick: () -> Unit,
+    dragData: () -> ClipData,
+    modifier: Modifier = Modifier,
+    iconSize: Int = 32,
+) {
+    val haptic = LocalHapticFeedback.current
+
+    CommunicationCardLayout(
+        label = label,
+        icon = icon,
+        containerColor = containerColor,
+        borderColor = borderColor,
+        iconSize = iconSize,
+        cardModifier =
+            Modifier
+                .clickable(onClick = onClick)
+                .dragAndDropSource(
+                    drawDragDecoration = {
+                        drawRoundRect(
+                            color = borderColor.copy(alpha = 0.7f),
+                            cornerRadius = CornerRadius(24.dp.toPx()),
+                        )
+                    },
+                ) {
+                    detectDragGesturesAfterLongPress(
+                        onDragStart = {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            startTransfer(
+                                DragAndDropTransferData(clipData = dragData()),
+                            )
+                        },
+                        onDrag = { _, _ -> },
+                    )
+                },
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun CommunicationCardLayout(
+    label: String,
+    icon: ImageVector,
+    containerColor: Color,
+    borderColor: Color,
+    iconSize: Int,
+    cardModifier: Modifier,
+    modifier: Modifier = Modifier,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -49,7 +123,7 @@ fun CommunicationCard(
                         color = borderColor,
                         shape = RoundedCornerShape(24.dp),
                     )
-                    .clickable(onClick = onClick),
+                    .then(cardModifier),
         ) {
             Icon(
                 imageVector = icon,

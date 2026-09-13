@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.SentimentSatisfied
 import androidx.compose.material.icons.filled.SmartToy
 import androidx.lifecycle.ViewModel
+import com.lexia.app.core.ui.dragdrop.BoardItemRef
 import com.lexia.app.shared.theme.BlueWord
 import com.lexia.app.shared.theme.GreenWord
 import com.lexia.app.shared.theme.LavenderFolder
@@ -38,9 +39,15 @@ class HomeViewModel : ViewModel() {
 
     fun onCardClick(card: BoardItem) {
         _uiState.update { current ->
-            current.copy(sentence = current.sentence + card)
+            if (current.sentence.size >= MAX_SENTENCE_SIZE) {
+                current
+            } else {
+                current.copy(sentence = current.sentence + card)
+            }
         }
     }
+
+    fun isSentenceFull(): Boolean = _uiState.value.sentence.size >= MAX_SENTENCE_SIZE
 
     fun onClearSentence() {
         _uiState.update { it.copy(sentence = emptyList()) }
@@ -65,6 +72,23 @@ class HomeViewModel : ViewModel() {
     }
 
     fun getFolderById(id: String): Folder? = _uiState.value.folders.find { it.id == id }
+
+    fun getMainWordById(id: String): MainWord? = _uiState.value.mainWords.find { it.id == id }
+
+    fun getCategoryItemById(
+        folderId: String,
+        itemId: String,
+    ): CategoryItem? =
+        _uiState.value.folders
+            .find { it.id == folderId }
+            ?.items
+            ?.find { it.id == itemId }
+
+    fun resolveBoardItem(ref: BoardItemRef): BoardItem? =
+        when (ref) {
+            is BoardItemRef.MainWordRef -> getMainWordById(ref.id)
+            is BoardItemRef.CategoryItemRef -> getCategoryItemById(ref.folderId, ref.itemId)
+        }
 
     private fun createInitialState(): HomeUiState {
         val mainWords =
@@ -239,5 +263,9 @@ class HomeViewModel : ViewModel() {
             folders = folders,
             sentence = listOf(mainWords[0], mainWords[1], waterWord),
         )
+    }
+
+    companion object {
+        const val MAX_SENTENCE_SIZE = 8
     }
 }

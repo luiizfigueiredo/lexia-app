@@ -20,9 +20,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,10 +36,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.lexia.app.core.ui.CommunicationCard
+import com.lexia.app.core.ui.DraggableCommunicationCard
 import com.lexia.app.core.ui.FolderCard
 import com.lexia.app.core.ui.HomeButton
 import com.lexia.app.core.ui.SentenceBar
+import com.lexia.app.core.ui.dragdrop.BoardItemRef
+import com.lexia.app.core.ui.dragdrop.mainWordClipData
+import com.lexia.app.core.ui.dragdrop.rememberSentenceDropTarget
 import com.lexia.app.navigation.navigateToCategory
 import com.lexia.app.shared.theme.MainPanelBlue
 import com.lexia.app.shared.theme.SubtitleText
@@ -46,6 +54,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val haptic = LocalHapticFeedback.current
 
     HomeContent(
         uiState = uiState,
@@ -54,6 +63,12 @@ fun HomeScreen(
         onSpeakClick = { /* não implementado no MVP */ },
         onClearClick = viewModel::onClearSentence,
         onSentenceCardClick = viewModel::onRemoveCardAt,
+        onSentenceDropped = { ref ->
+            viewModel.resolveBoardItem(ref)?.let { item ->
+                viewModel.onCardClick(item)
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            }
+        },
         onHomeClick = { navController.navigate("home") { popUpTo("home") { inclusive = true } } },
         modifier = modifier,
     )
@@ -68,9 +83,13 @@ private fun HomeContent(
     onSpeakClick: () -> Unit,
     onClearClick: () -> Unit,
     onSentenceCardClick: (Int) -> Unit,
+    onSentenceDropped: (BoardItemRef) -> Unit,
     onHomeClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var isDragOverSentenceBar by remember { mutableStateOf(false) }
+    val isSentenceFull = uiState.sentence.size >= HomeViewModel.MAX_SENTENCE_SIZE
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         modifier = modifier.fillMaxSize(),
@@ -108,6 +127,14 @@ private fun HomeContent(
                 onSpeakClick = onSpeakClick,
                 onClearClick = onClearClick,
                 onCardClick = onSentenceCardClick,
+                isDropTargetActive = isDragOverSentenceBar,
+                isSentenceFull = isSentenceFull,
+                modifier =
+                    rememberSentenceDropTarget(
+                        isFull = { isSentenceFull },
+                        onDragOverChanged = { isDragOverSentenceBar = it },
+                        onDrop = onSentenceDropped,
+                    ),
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -177,12 +204,13 @@ private fun MainWordsPanel(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     rowWords.forEach { word ->
-                        CommunicationCard(
+                        DraggableCommunicationCard(
                             label = word.label,
                             icon = word.icon,
                             containerColor = word.containerColor,
                             borderColor = word.borderColor,
                             onClick = { onCardClick(word) },
+                            dragData = { mainWordClipData(word.id) },
                         )
                     }
                 }
@@ -243,6 +271,7 @@ private fun HomeScreenTabletPreview() {
             onSpeakClick = {},
             onClearClick = {},
             onSentenceCardClick = {},
+            onSentenceDropped = {},
             onHomeClick = {},
         )
     }
@@ -259,6 +288,7 @@ private fun HomeScreenPhonePreview() {
             onSpeakClick = {},
             onClearClick = {},
             onSentenceCardClick = {},
+            onSentenceDropped = {},
             onHomeClick = {},
         )
     }
